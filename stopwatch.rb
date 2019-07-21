@@ -1,3 +1,4 @@
+# require './timer'
 class Stopwatch
   attr_reader :latest_time
 
