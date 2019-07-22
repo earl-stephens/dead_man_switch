@@ -3,6 +3,10 @@ require './stopwatch'
 class Timer < Sinatra::Base
   attr_reader :latest_time
 
+  get '/' do
+    erb :welcome
+  end
+
   put '/timer' do
     # "hello world"
     request.body.rewind
