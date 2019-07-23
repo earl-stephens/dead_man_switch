@@ -1,42 +1,18 @@
 require './stopwatch'
 require 'json'
-# require 'faraday'
+
 class Timer < Sinatra::Base
-  attr_reader :latest_time
-
-  get '/' do
-    erb :welcome
-  end
-
-  put '/timer' do
-    # "hello world"
-    request.body.rewind
-    @latest_time = JSON.parse([request.body.read].to_json)
-    # binding.pry
-    sw = Stopwatch.new(@latest_time)
-    # sw.find_diff
-
-    data = {"sinatra_data": "#{sw.find_diff}"}
-    data = data.to_json
-  # binding.pry
-    Faraday.put('http://127.0.0.1:3000/receiver') do |f|
-              f.body =  data
-              f.headers["Content-Type"] = "application/json"
-              f.headers["Content-Length"] = "16"
-              end
-  end
 
   get '/timer2.json' do
-  # binding.pry
-  request.body.rewind
-  @latest_time = JSON.parse([request.body.read].to_json)
-  # binding.pry
-  sw = Stopwatch.new(@latest_time)
-  # sw.find_diff
-  # binding.pry
-  content_type :json
-  {:key1 => "#{sw.find_diff}"}.to_json
-
-end
-
+    request.body.rewind
+    initial_results = JSON.parse([request.body.read].to_json)
+    results = JSON.parse(initial_results.first)
+    user_id = results["user_id"]
+    updated_at = results["updated_at"]
+    interval_in_seconds = results["interval"]
+    sw = Stopwatch.new(updated_at, user_id, interval_in_seconds)
+    time_data = sw.dead_mans_switch
+    content_type :json
+    {:time_difference => "#{time_data[:time_difference]}", :user_id => "#{time_data[:user_id]}" }.to_json
+  end
 end
